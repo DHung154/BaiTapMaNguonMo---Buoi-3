@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Bài 11 - Tỷ giá ngoại tệ</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Tỷ giá ngoại tệ</h1>
+        <div class="controls">
+            <select id="base">
+                <option value="USD">USD - Đô la Mỹ</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="VND">VND - Việt Nam Đồng</option>
+                <option value="JPY">JPY - Yên Nhật</option>
+            </select>
+            <button onclick="loadRates()">Xem tỷ giá</button>
+        </div>
+        <div id="updated"></div>
+        <table>
+            <thead><tr><th>Đơn vị</th><th>Tỷ giá</th></tr></thead>
+            <tbody id="rates"></tbody>
+        </table>
+        <div id="note"></div>
+    </div>
+
+    <script>
+        function loadRates() {
+            const base = document.getElementById('base').value;
+            fetch('exchange.php?base=' + encodeURIComponent(base))
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('rates');
+                    tbody.innerHTML = '';
+                    for (const [currency, rate] of Object.entries(data.rates)) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td>${currency}</td><td>${rate}</td>`;
+                        tbody.appendChild(tr);
+                    }
+                    document.getElementById('updated').innerText =
+                        `Cơ sở: ${data.base} | Ngày: ${data.date || ''}`;
+                    document.getElementById('note').innerText = data.note || '';
+                });
+        }
+
+        loadRates();
+        // Tự động cập nhật mỗi 10 phút (600.000 ms)
+        setInterval(loadRates, 600000);
+    </script>
+</body>
+</html>
